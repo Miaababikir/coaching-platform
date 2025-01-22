@@ -2,12 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CoachingSessionStatus;
 use App\Models\Client;
 use App\Models\Coach;
 use App\Models\CoachingSession;
-use App\Models\User;
+
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,37 +19,48 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        $batchSize = 10_000;
+        Coach::factory()
+            ->count(1000)
+            ->make()
+            ->each(function ($coaches) {
+                DB::table('coaches')->insert($coaches->toArray());
 
-        for ($i = 0; $i < 1_000_000; $i += $batchSize) {
+                Coach::query()->chunk(500, function ($coaches) {
 
-            $coaches = Coach::factory($batchSize)->create();
+                    $coaches->each(function ($coach) {
 
-            foreach ($coaches as $coach) {
+                        $clients = Client::factory()
+                            ->count(1000)
+                            ->make([
+                                'coach_id' => $coach->id,
+                            ]);
 
-                $clients = Client::factory(1_000)->create();
+                        // Step 2: Batch insert clients
 
-                $clientIds = $clients->pluck('id');
-                $coach->clients()->attach($clientIds);
+                        DB::table('clients')->insert($clients->toArray());
 
-                foreach ($clients as $client) {
-                    $sessions = [];
+                        $clientIds = DB::table('clients')->latest('id')->limit(count($clients->toArray()))->pluck('id')->toArray();
 
-                    for ($j = 0; $j < 20; $j++) {
-                        $sessions[] = [
-                            'coach_id' => $coach->id,
-                            'client_id' => $client->id,
-                            'date' => fake()->dateTimeBetween('+1 days', '+1 year'),
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    }
-                    CoachingSession::insert($sessions);
+                        // Step 3: Prepare sessions in bulk
+                        $sessions = [];
+                        foreach ($clientIds as $clientId) {
+                            for ($i = 0; $i < 20; $i++) {
+                                $sessions[] = [
+                                    'date' => fake()->dateTimeBetween('+1 day', '+6 months'),
+                                    'status' => fake()->randomElement([CoachingSessionStatus::Scheduled->value, CoachingSessionStatus::Completed->value]),
+                                    'client_id' => $clientId,
+                                    'coach_id' => $coach->id,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ];
+                            }
+                        }
+
+                        DB::table('coaching_sessions')->insert($sessions);
+                    });
 
                 }
-
-            }
-        }
-
+                );
+            });
     }
 }

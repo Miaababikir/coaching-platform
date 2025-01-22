@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CoachingSessionStatus;
 use App\Models\Client;
 use App\Models\Coach;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,10 +20,10 @@ class CoachingSessionFactory extends Factory
     public function definition(): array
     {
         return [
+            'date' => fake()->dateTimeBetween('+1 day', '+6 months'),
+            'status' => fake()->randomElement([CoachingSessionStatus::Scheduled->value, CoachingSessionStatus::Completed->value]),
             'client_id' => Client::factory(),
             'coach_id' => Coach::factory(),
-            'date' => fake()->dateTimeBetween('+1 day', '+6 months'),
-            'status' => 'scheduled',
         ];
     }
 }

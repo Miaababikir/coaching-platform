@@ -40,6 +40,15 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'coach' => [
+            'driver' => 'sanctum',
+            'provider' => 'coaches',
+        ],
+
+        'client' => [
+            'driver' => 'sanctum',
+            'provider' => 'clients',
+        ],
     ],
 
     /*
@@ -65,10 +74,15 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'coaches' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Coach::class,
+        ],
+
+        'clients' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Client::class,
+        ],
     ],
 
     /*
