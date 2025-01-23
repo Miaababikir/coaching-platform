@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Coach;
 
 use App\Dto\CreateCoachingSessionDto;
 use App\Dto\UpdateCoachingSessionDto;
+use App\Events\CoachingSessionCreated;
 use App\Http\Controllers\Controller;
 use App\Services\CoachingSessionService;
 use Illuminate\Http\Request;

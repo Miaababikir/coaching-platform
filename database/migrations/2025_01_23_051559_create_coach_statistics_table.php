@@ -1,9 +1,7 @@
 <?php
 
-use App\Enums\CoachingSessionStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('coaching_sessions', function (Blueprint $table) {
+        Schema::create('coach_statistics', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('date');
-            $table->string('status')->default(CoachingSessionStatus::Scheduled->value)->index();
-            $table->foreignId('client_id')->constrained('clients');
             $table->foreignId('coach_id')->constrained('coaches');
+            $table->unsignedBigInteger('total_clients')->default(0);
+            $table->unsignedBigInteger('total_sessions')->default(0);
+            $table->unsignedBigInteger('completed_sessions')->default(0);
+            $table->unsignedBigInteger('scheduled_sessions')->default(0);
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('coaching_sessions');
-    }// statistic
+        Schema::dropIfExists('coach_statistics');
+    }
 };

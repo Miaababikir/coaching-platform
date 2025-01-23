@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Dto\CreateCoachingSessionDto;
 use App\Dto\UpdateCoachingSessionDto;
 use App\Enums\CoachingSessionStatus;
+use App\Events\CoachingSessionCompleted;
+use App\Events\CoachingSessionCreated;
+use App\Events\CoachingSessionDeleted;
 use App\Exceptions\InvalidClientException;
 use App\Models\CoachingSession;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -55,6 +58,8 @@ class CoachingSessionService
         $coachingSession->coach_id = $coachId;
         $coachingSession->save();
 
+        CoachingSessionCreated::dispatch($coachingSession->id, $coachingSession->client_id, $coachingSession->coach_id);
+
         return $coachingSession;
     }
 
@@ -94,6 +99,8 @@ class CoachingSessionService
             ->firstOrFail();
 
         $coachingSession->delete();
+
+        CoachingSessionDeleted::dispatch($coachingSession->id, $coachingSession->client_id, $coachingSession->coach_id);
     }
 
     public function markCompleted($id)
@@ -105,28 +112,8 @@ class CoachingSessionService
         $coachingSession->status = CoachingSessionStatus::Completed->value;
         $coachingSession->save();
 
+        CoachingSessionCompleted::dispatch($coachingSession->id, $coachingSession->client_id, $coachingSession->coach_id);
+
         return $coachingSession;
     }
-
-    public function findTotalCoachingSessionConductedByCoachId(int|string $coachId): int
-    {
-        return CoachingSession::query()
-            ->where('coach_id', $coachId)
-            ->count();
-    }
-
-    public function findClientCoachingSessionProgressByCoachId(int|string $coachId)
-    {
-
-        $data = CoachingSession::query()
-            ->selectRaw('count(*) as total, status')
-            ->where('coach_id', $coachId)
-            ->groupBy('status')
-            ->get();
-
-        return $data;
-
-    }
-
-
 }

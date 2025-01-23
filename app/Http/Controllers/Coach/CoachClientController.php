@@ -31,7 +31,6 @@ class CoachClientController extends Controller
             'password' => ['required', 'min:8'],
         ]);
 
-
         return $this->clientService->create(auth()->id(), new CreateClientDto(
             name: $data['name'],
             email: $data['email'],
@@ -42,7 +41,7 @@ class CoachClientController extends Controller
 
     public function show(string $id)
     {
-        $client = $this->clientService->findById($id, auth()->id());
+        return $this->clientService->findById($id, auth()->id());
     }
 
     public function update(Request $request, string $id)

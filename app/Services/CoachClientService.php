@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Dto\CreateClientDto;
 use App\Dto\UpdateClientDto;
+use App\Events\ClientCreated;
+use App\Events\ClientDeleted;
 use App\Models\Client;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -29,6 +31,8 @@ class CoachClientService
         $client->password = bcrypt($data->password);
         $client->coach_id = $coachId;
         $client->save();
+
+        ClientCreated::dispatch($client->id, $client->coach_id);
 
         return $client;
     }
@@ -79,6 +83,8 @@ class CoachClientService
             ->firstOrFail();
 
         $client->delete();
+
+        ClientDeleted::dispatch($id, $couchId);
     }
 
     public function hasCoach($clientId, $coachId): bool

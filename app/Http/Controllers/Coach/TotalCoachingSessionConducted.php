@@ -3,20 +3,21 @@
 namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
-use App\Services\CoachingSessionService;
+use App\Services\CoachingSessionStatisticService;
 use Illuminate\Http\Request;
 
 class TotalCoachingSessionConducted extends Controller
 {
     public function __construct(
-        protected CoachingSessionService $coachingSessionService
+        protected CoachingSessionStatisticService $coachingSessionStatisticService
+
     )
     {
     }
 
     public function __invoke(Request $request)
     {
-        $total = $this->coachingSessionService->findTotalCoachingSessionConductedByCoachId(auth()->id());
+        $total = $this->coachingSessionStatisticService->findTotalCoachingSessionConductedByCoachId(auth()->id());
 
         return response()->json(['total' => $total]);
     }

@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
-use App\Services\CoachingSessionService;
+use App\Services\CoachingSessionStatisticService;
 use Illuminate\Http\Request;
 
 class ClientCoachingSessionProgress extends Controller
 {
 
     public function __construct(
-        protected CoachingSessionService $coachingSessionService
+        protected CoachingSessionStatisticService $coachingSessionStatisticService
     )
     {
     }
 
     public function __invoke(Request $request)
     {
-        $data = $this->coachingSessionService->findClientCoachingSessionProgressByCoachId(auth()->id());
+        $data = $this->coachingSessionStatisticService->findClientCoachingSessionProgress($request->client_id, auth()->id());
 
         return $data;
     }
